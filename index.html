@@ -2,207 +2,148 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>GeoShield Pro: Глобальный Геомаскиратор</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>SafeNet VPN</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
-            background: linear-gradient(135deg, #0f1020, #16213e);
-            color: #e0e0e0;
             font-family: 'Arial', sans-serif;
-        }
-        .geoshield-container {
-            background: rgba(30, 40, 70, 0.9);
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 500px;
-            margin: 50px auto;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-        }
-        .btn-geoshield {
-            background: linear-gradient(45deg, #5c42ff, #bd34fe);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border: none;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 90%;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            animation: slideDown 1s ease;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            transition: color 0.3s;
+        }
+        nav a:hover {
+            color: #ffd700;
+        }
+        .hero {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+            animation: fadeIn 1.5s ease;
+        }
+        .hero h1 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .hero p {
+            max-width: 600px;
+            margin-bottom: 30px;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #ffd700;
+            color: #667eea;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: transform 0.3s;
+        }
+        .btn:hover {
+            transform: scale(1.1);
+        }
+        .features {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 50px;
+        }
+        .feature {
+            background-color: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            width: 30%;
+            transition: transform 0.4s;
+        }
+        .feature:hover {
+            transform: translateY(-10px);
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        @media (max-width: 768px) {
+            .features {
+                flex-direction: column;
+            }
+            .feature {
+                width: 100%;
+                margin-bottom: 20px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="geoshield-container">
-            <h2 class="text-center mb-4">🌍 GeoShield Pro</h2>
-            
-            <div class="mb-3">
-                <select id="locationSelect" class="form-control">
-                    <option value="moscow">Москва</option>
-                    <option value="london">Лондон</option>
-                    <option value="newyork">Нью-Йорк</option>
-                    <option value="tokyo">Токио</option>
-                    <option value="dubai">Дубай</option>
-                </select>
-            </div>
+        <header>
+            <div class="logo">SafeNet VPN</div>
+            <nav>
+                <a href="#">Главная</a>
+                <a href="#">Сервера</a>
+                <a href="#">Цены</a>
+            </nav>
+        </header>
 
-            <button id="activateShieldBtn" class="btn btn-geoshield w-100 mt-3">
-                Активировать GeoShield
-            </button>
+        <section class="hero">
+            <h1>Безопасный и Быстрый VPN</h1>
+            <p>Защитите свою онлайн-конфиденциальность и получите неограниченный доступ к интернету с SafeNet VPN</p>
+            <a href="#" class="btn">Скачать Сейчас</a>
+        </section>
 
-            <div id="statusPanel" class="mt-3 text-center">
-                <div id="geoStatus" class="alert alert-info mt-2"></div>
+        <section class="features">
+            <div class="feature">
+                <h3>Анонимность</h3>
+                <p>Скрываем ваш реальный IP-адрес</p>
             </div>
-        </div>
+            <div class="feature">
+                <h3>Безопасность</h3>
+                <p>Шифрование трафика по военным стандартам</p>
+            </div>
+            <div class="feature">
+                <h3>Скорость</h3>
+                <p>Быстрое подключение без ограничений</p>
+            </div>
+        </section>
     </div>
-
-    <script>
-        // Расширенная конфигурация локаций
-        const LOCATIONS = {
-            moscow: {
-                lat: 55.755826,
-                lon: 37.617300,
-                city: 'Москва',
-                country: 'Россия',
-                timezone: 'Europe/Moscow',
-                ip: '87.250.250.0'
-            },
-            london: {
-                lat: 51.507351,
-                lon: -0.127758,
-                city: 'Лондон',
-                country: 'Великобритания', 
-                timezone: 'Europe/London',
-                ip: '2.25.194.0'
-            },
-            newyork: {
-                lat: 40.730610,
-                lon: -73.935242,
-                city: 'Нью-Йорк',
-                country: 'США',
-                timezone: 'America/New_York',
-                ip: '8.8.8.0'
-            },
-            tokyo: {
-                lat: 35.689487,
-                lon: 139.691711,
-                city: 'Токио',
-                country: 'Япония',
-                timezone: 'Asia/Tokyo',
-                ip: '210.140.0.0'
-            },
-            dubai: {
-                lat: 25.204849,
-                lon: 55.270783,
-                city: 'Дубай',
-                country: 'ОАЭ',
-                timezone: 'Asia/Dubai',
-                ip: '185.142.0.0'
-            }
-        };
-
-        class GeoShieldPro {
-            constructor() {
-                this.originalGeolocation = { ...navigator.geolocation };
-                this.fakeLocation = null;
-                this.initEventListeners();
-            }
-
-            initEventListeners() {
-                document.getElementById('activateShieldBtn').addEventListener('click', () => this.activateShield());
-            }
-
-            // Глубокий механизм подмены геолокации
-            activateShield() {
-                const locationSelect = document.getElementById('locationSelect');
-                const selectedLocation = LOCATIONS[locationSelect.value];
-
-                // Полная подмена геолокационных API
-                this.overrideGeolocationAPIs(selectedLocation);
-                
-                // Подмена WebRTC для скрытия реального IP
-                this.overrideWebRTC(selectedLocation);
-
-                // Подмена navigator.userAgent
-                this.spoofUserAgent(selectedLocation);
-
-                // Подмена timezone
-                this.spoofTimezone(selectedLocation);
-
-                // Обновление статуса
-                this.updateStatus(selectedLocation);
-            }
-
-            overrideGeolocationAPIs(location) {
-                // Глобальная подмена getCurrentPosition
-                navigator.geolocation.getCurrentPosition = (successCallback) => {
-                    const mockPosition = this.createMockPosition(location);
-                    successCallback(mockPosition);
-                };
-
-                // Подмена watchPosition
-                navigator.geolocation.watchPosition = (successCallback) => {
-                    const mockPosition = this.createMockPosition(location);
-                    return setInterval(() => successCallback(mockPosition), 1000);
-                };
-            }
-
-            createMockPosition(location) {
-                const randomOffset = () => (Math.random() - 0.5) * 0.01;
-
-                return {
-                    coords: {
-                        latitude: location.lat + randomOffset(),
-                        longitude: location.lon + randomOffset(),
-                        accuracy: 100
-                    },
-                    timestamp: Date.now()
-                };
-            }
-
-            overrideWebRTC(location) {
-                // Перехват WebRTC для подмены IP
-                if (window.RTCPeerConnection) {
-                    const originalCreateOffer = RTCPeerConnection.prototype.createOffer;
-                    RTCPeerConnection.prototype.createOffer = function(...args) {
-                        return originalCreateOffer.apply(this, args).then(offer => {
-                            // Логика подмены IP в offer
-                            return offer;
-                        });
-                    };
-                }
-            }
-
-            spoofUserAgent(location) {
-                // Динамическая подмена UserAgent
-                Object.defineProperty(navigator, 'userAgent', {
-                    get: () => `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36 ${location.city}`
-                });
-            }
-
-            spoofTimezone(location) {
-                // Принудительная установка timezone
-                Intl.DateTimeFormat = function() {
-                    return {
-                        resolvedOptions: () => ({
-                            timeZone: location.timezone
-                        })
-                    };
-                };
-            }
-
-            updateStatus(location) {
-                const statusPanel = document.getElementById('geoStatus');
-                statusPanel.innerHTML = `
-                    🌍 Активирован GeoShield<br>
-                    📍 Локация: ${location.city}, ${location.country}<br>
-                    🕸️ IP замаскирован<br>
-                    🕒 Timezone: ${location.timezone}
-                `;
-                statusPanel.classList.remove('alert-info');
-                statusPanel.classList.add('alert-success');
-            }
-        }
-
-        // Инициализация при загрузке
-        document.addEventListener('DOMContentLoaded', () => {
-            new GeoShieldPro();
-        });
-    </script>
 </body>
 </html>
