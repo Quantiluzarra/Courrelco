@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Космический Защитник</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="description" content="Космическая игра-шутер">
+    <meta name="keywords" content="игра, космос, шутер, arcade">
+    <meta name="author" content="Your Name">
+    
     <style>
         * { 
             margin: 0; 
@@ -14,400 +19,283 @@
         body { 
             background: #1a1a2e; 
             overflow: hidden; 
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             touch-action: none;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
         canvas { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            touch-action: none;
+            max-width: 100%;
+            max-height: 100vh;
+            background: #000;
+            box-shadow: 0 0 20px rgba(0,255,255,0.5);
         }
-        #gameOverScreen {
+        #gameOverlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
             display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            color: white;
-            text-align: center;
-        }
-        #restartButton {
-            margin-top: 20px;
-            padding: 15px 30px;
-            font-size: 22px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            touch-action: manipulation;
-        }
-        #subscribeButton {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            display: none;
+            background: rgba(0,0,0,0.8);
             z-index: 1000;
         }
-        #loadingScreen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-        #pixelLoadingBar {
-            width: 200px;
-            height: 15px;
-            background-color: #222;
-            border: 2px solid #fff;
-            position: relative;
-            overflow: hidden;
-        }
-        #pixelLoadingProgress {
-            width: 0;
-            height: 100%;
+        #restartButton {
+            padding: 10px 20px;
+            font-size: 18px;
             background-color: #4CAF50;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transition: width 0.5s ease;
-        }
-        #pixelLoadingText {
-            color: #4CAF50;
-            font-family: monospace;
-            margin-bottom: 15px;
-            font-size: 14px;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="loadingScreen">
-        <div id="pixelLoadingText">Загрузка...</div>
-        <div id="pixelLoadingBar">
-            <div id="pixelLoadingProgress"></div>
-        </div>
-    </div>
-
     <canvas id="gameCanvas"></canvas>
     
-    <div id="gameOverScreen">
-        <h1>Игра окончена!</h1>
-        <p id="finalScore">Ваш счет: 0</p>
+    <div id="gameOverlay">
+        <h1 style="color: white;">Игра окончена!</h1>
+        <p id="scoreDisplay" style="color: white; font-size: 24px;">Счет: 0</p>
         <button id="restartButton">Начать заново</button>
     </div>
-    <button id="subscribeButton" onclick="window.open('https://t.me/fuitec', '_blank')">
-        Подписаться
-    </button>
 
     <script>
-        class SpaceDefender {
-            constructor() {
-                this.canvas = document.getElementById('gameCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.gameOverScreen = document.getElementById('gameOverScreen');
-                this.finalScoreElement = document.getElementById('finalScore');
-                this.restartButton = document.getElementById('restartButton');
-                this.subscribeButton = document.getElementById('subscribeButton');
-                this.loadingScreen = document.getElementById('loadingScreen');
-                this.pixelLoadingProgress = document.getElementById('pixelLoadingProgress');
-                
-                // Звуки
-                this.shootSound = new Audio('https://soundbible.com/grab.php?id=2067&type=mp3');
-                this.explosionSound = new Audio('https://soundbible.com/grab.php?id=1802&type=mp3');
-                
-                // Настройка громкости звуков
-                this.shootSound.volume = 0.2;
-                this.explosionSound.volume = 0.3;
-                
-                this.loadGame();
-            }
+    class SpaceDefenderGame {
+        constructor() {
+            // Инициализация основных элементов
+            this.canvas = document.getElementById('gameCanvas');
+            this.ctx = this.canvas.getContext('2d');
+            this.overlay = document.getElementById('gameOverlay');
+            this.scoreDisplay = document.getElementById('scoreDisplay');
+            this.restartButton = document.getElementById('restartButton');
 
-            // Методы воспроизведения звуков
-            playShootSound() {
-                const sound = this.shootSound.cloneNode();
-                sound.play().catch(e => console.log("Ошибка воспроизведения звука выстрела"));
-            }
+            // Звуки с GitHub Pages совместимыми путями
+            this.sounds = {
+                shoot: new Audio('assets/sounds/shoot.mp3'),
+                explosion: new Audio('assets/sounds/explosion.mp3'),
+                background: new Audio('assets/sounds/background.mp3')
+            };
 
-            playExplosionSound() {
-                const sound = this.explosionSound.cloneNode();
-                sound.play().catch(e => console.log("Ошибка воспроизведения звука взрыва"));
-            }
+            // Настройка звуков
+            Object.values(this.sounds).forEach(sound => {
+                sound.volume = 0.3;
+            });
+            this.sounds.background.loop = true;
 
-            loadGame() {
-                let progress = 0;
-                const loadingInterval = setInterval(() => {
-                    progress += 10;
-                    this.pixelLoadingProgress.style.width = `${progress}%`;
-                    
-                    if (progress >= 100) {
-                        clearInterval(loadingInterval);
-                        setTimeout(() => {
-                            this.loadingScreen.style.display = 'none';
-                            this.setupCanvas();
-                            this.initGame();
-                            this.setupEventListeners();
-                        }, 500);
-                    }
-                }, 100);
-            }
+            // Привязка методов
+            this.setupEventListeners();
+            this.resizeCanvas();
+            this.initGame();
+        }
 
-            setupCanvas() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-                window.addEventListener('resize', () => {
-                    this.canvas.width = window.innerWidth;
-                    this.canvas.height = window.innerHeight;
-                });
-            }
+        setupEventListeners() {
+            // Адаптивное управление
+            this.canvas.addEventListener('mousemove', (e) => {
+                const rect = this.canvas.getBoundingClientRect();
+                this.player.x = e.clientX - rect.left - this.player.width / 2;
+            });
 
-            setupEventListeners() {
-                this.restartButton.addEventListener('click', () => this.restartGame());
+            this.canvas.addEventListener('touchmove', (e) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                this.player.x = touch.clientX - rect.left - this.player.width / 2;
+            });
 
-                this.canvas.addEventListener('touchmove', (e) => {
-                    e.preventDefault();
-                    const touch = e.touches[0];
-                    this.player.x = Math.max(0, Math.min(
-                        touch.clientX - this.player.width / 2, 
-                        this.canvas.width - this.player.width
-                    ));
-                }, { passive: false });
-            }
+            this.restartButton.addEventListener('click', () => this.resetGame());
+            window.addEventListener('resize', () => this.resizeCanvas());
+        }
 
-            restartGame() {
-                this.gameOverScreen.style.display = 'none';
-                this.initGame();
-            }
+        resizeCanvas() {
+            this.canvas.width = window.innerWidth;
+            this.canvas.height = window.innerHeight;
+        }
 
-            initGame() {
-                const scaleFactor = this.canvas.width / 500;
-                
-                this.player = {
-                    x: this.canvas.width / 2,
-                    y: this.canvas.height - 100 * scaleFactor,
-                    width: 50 * scaleFactor,
-                    height: 50 * scaleFactor,
-                    speed: 5 * scaleFactor,
-                    autoShoot: true
-                };
+        initGame() {
+            // Основная инициализация игровых объектов
+            this.player = {
+                x: this.canvas.width / 2,
+                y: this.canvas.height - 100,
+                width: 50,
+                height: 50,
+                speed: 5
+            };
 
-                this.enemies = [];
-                this.bullets = [];
-                this.explosions = [];
-                this.score = 0;
-                this.gameOver = false;
-                this.lastShootTime = 0;
-                this.lastEnemySpawnTime = 0;
+            this.enemies = [];
+            this.bullets = [];
+            this.score = 0;
+            this.gameOver = false;
 
-                                this.startGameLoop();
-            }
+            this.startGameLoop();
+        }
 
-            startGameLoop() {
-                const gameLoop = () => {
-                    if (!this.gameOver) {
-                        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                        
-                        this.updateGameObjects();
-                        this.spawnEnemies();
-                        this.drawGame();
-
-                        requestAnimationFrame(gameLoop);
-                    } else {
-                        this.endGame();
-                    }
-                };
-                requestAnimationFrame(gameLoop);
-            }
-
-            updateGameObjects() {
-                if (this.player.autoShoot) {
-                    this.shootBullet();
+        startGameLoop() {
+            const gameLoop = () => {
+                if (!this.gameOver) {
+                    this.update();
+                    this.render();
+                    requestAnimationFrame(gameLoop);
+                } else {
+                    this.endGame();
                 }
+            };
+            requestAnimationFrame(gameLoop);
+        }
 
-                this.enemies.forEach((enemy, index) => {
-                    enemy.y += enemy.speed;
-                    
-                    if (this.checkCollision(this.player, enemy)) {
-                        this.gameOver = true;
-                    }
+        update() {
+            // Логика обновления игровых объектов
+            this.spawnEnemies();
+            this.updateBullets();
+            this.updateEnemies();
+            this.checkCollisions();
+        }
 
-                    if (enemy.y > this.canvas.height) {
-                        this.enemies.splice(index, 1);
-                    }
-                });
+        render() {
+            // Отрисовка игровых объектов
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            
+            // Рисование игрока
+            this.ctx.fillStyle = 'blue';
+            this.ctx.fillRect(this.player.x, this.player.y, this.player.width, this.player.height);
 
-                this.bullets.forEach((bullet, bIndex) => {
-                    bullet.y -= bullet.speed;
-                    
-                    this.enemies.forEach((enemy, eIndex) => {
-                        if (this.checkCollision(bullet, enemy)) {
-                            this.createExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2);
-                            
-                            this.bullets.splice(bIndex, 1);
-                            this.enemies.splice(eIndex, 1);
-                            this.score++;
-
-                            // Воспроизведение звука взрыва
-                            this.playExplosionSound();
-
-                            if (this.score % 150 === 0) {
-                                this.showSubscribeButton();
-                            }
-                        }
-                    });
-
-                    if (bullet.y < 0) this.bullets.splice(bIndex, 1);
-                });
-
-                this.explosions.forEach((explosion, index) => {
-                    explosion.radius += 2;
-                    explosion.opacity -= 0.05;
-                    
-                    if (explosion.opacity <= 0) {
-                        this.explosions.splice(index, 1);
-                    }
-                });
-            }
-
-            shootBullet() {
-                const currentTime = Date.now();
-                if (currentTime - this.lastShootTime > 100) {
-                    this.bullets.push({
-                        x: this.player.x + this.player.width / 2,
-                        y: this.player.y,
-                        width: 5 * (this.canvas.width / 500),
-                        height: 15 * (this.canvas.width / 500),
-                        speed: 10 * (this.canvas.width / 500)
-                    });
-                    this.lastShootTime = currentTime;
-                    
-                    // Воспроизведение звука выстрела
-                    this.playShootSound();
-                }
-            }
-
-            spawnEnemies() {
-                const currentTime = Date.now();
-                const scaleFactor = this.canvas.width / 500;
-
-                if (currentTime - this.lastEnemySpawnTime > 500) {
-                    const enemyWidth = 40 * scaleFactor;
-                    const enemyHeight = 40 * scaleFactor;
-                    const enemyX = Math.random() * (this.canvas.width - enemyWidth);
-
-                    this.enemies.push({
-                        x: enemyX,
-                        y: -enemyHeight,
-                        width: enemyWidth,
-                        height: enemyHeight,
-                        speed: 3 * scaleFactor
-                    });
-
-                    this.lastEnemySpawnTime = currentTime;
-                }
-            }
-
-            drawGame() {
-                // Рисование игрока
-                this.ctx.fillStyle = 'blue';
-                this.ctx.fillRect(
-                    this.player.x, 
-                    this.player.y, 
-                    this.player.width, 
-                    this.player.height
-                );
-
-                // Рисование врагов
+            // Рисование врагов и пуль
+            this.enemies.forEach(enemy => {
                 this.ctx.fillStyle = 'red';
-                this.enemies.forEach(enemy => {
-                    this.ctx.fillRect(
-                        enemy.x, 
-                        enemy.y, 
-                        enemy.width, 
-                        enemy.height
-                    );
-                });
+                this.ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            });
 
-                // Рисование пуль
+            this.bullets.forEach(bullet => {
                 this.ctx.fillStyle = 'white';
-                this.bullets.forEach(bullet => {
-                    this.ctx.fillRect(
-                        bullet.x, 
-                        bullet.y, 
-                        bullet.width, 
-                        bullet.height
-                    );
+                this.ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+        }
+
+        spawnEnemies() {
+            if (Math.random() < 0.02) {
+                this.enemies.push({
+                    x: Math.random() * (this.canvas.width - 50),
+                    y: -50,
+                    width: 50,
+                    height: 50,
+                    speed: 2
                 });
-
-                // Рисование взрывов
-                this.explosions.forEach(explosion => {
-                    this.ctx.beginPath();
-                    this.ctx.arc(
-                        explosion.x, 
-                        explosion.y, 
-                        explosion.radius, 
-                        0, 
-                        Math.PI * 2
-                    );
-                    this.ctx.fillStyle = `rgba(255, 165, 0, ${explosion.opacity})`;
-                    this.ctx.fill();
-                });
-
-                // Рисование счета
-                this.ctx.fillStyle = 'white';
-                this.ctx.font = `${20 * (this.canvas.width / 500)}px Arial`;
-                this.ctx.fillText(`Счет: ${this.score}`, 10, 30);
-            }
-
-            createExplosion(x, y) {
-                this.explosions.push({
-                    x: x,
-                    y: y,
-                    radius: 5,
-                    opacity: 1
-                });
-            }
-
-            checkCollision(rect1, rect2) {
-                return rect1.x < rect2.x + rect2.width &&
-                       rect1.x + rect1.width > rect2.x &&
-                       rect1.y < rect2.y + rect2.height &&
-                       rect1.y + rect1.height > rect2.y;
-            }
-
-            showSubscribeButton() {
-                this.subscribeButton.style.display = 'block';
-            }
-
-            endGame() {
-                this.finalScoreElement.textContent = `Ваш счет: ${this.score}`;
-                this.gameOverScreen.style.display = 'flex';
-                this.subscribeButton.style.display = 'block';
             }
         }
 
-        // Инициализация игры
-        new SpaceDefender();
+        updateBullets() {
+            this.bullets.forEach((bullet, index) => {
+                bullet.y -= 5;
+                
+                if (bullet.y < 0) {
+                    this.bullets.splice(index, 1);
+                }
+            });
+        }
+
+        updateEnemies() {
+            this.enemies.forEach((enemy, index) => {
+                enemy.y += enemy.speed;
+                
+                if (enemy.y > this.canvas.height) {
+                    this.enemies.splice(index, 1);
+                }
+            });
+        }
+
+        checkCollisions() {
+            // Проверка столкновений
+            this.bullets.forEach((bullet, bIndex) => {
+                this.enemies.forEach((enemy, eIndex) => {
+                    if (this.isColliding(bullet, enemy)) {
+                        this.bullets.splice(bIndex, 1);
+                        this.enemies.splice(eIndex, 1);
+                        this.score++;
+                        this.playSound('explosion');
+                    }
+                });
+            });
+        }
+
+        isColliding(rect1, rect2) {
+            return rect1.x < rect2.x + rect2.width &&
+                   rect1.x + rect1.width > rect2.x &&
+                                      rect1.y < rect2.y + rect2.height &&
+                   rect1.y + rect1.height > rect2.y;
+        }
+
+        playSound(soundName) {
+            try {
+                const sound = this.sounds[soundName].cloneNode();
+                sound.play();
+            } catch(e) {
+                console.error(`Ошибка воспроизведения звука ${soundName}:`, e);
+            }
+        }
+
+        shootBullet() {
+            this.bullets.push({
+                x: this.player.x + this.player.width / 2,
+                y: this.player.y,
+                width: 5,
+                height: 15
+            });
+            this.playSound('shoot');
+        }
+
+        endGame() {
+            this.overlay.style.display = 'flex';
+            this.scoreDisplay.textContent = `Счет: ${this.score}`;
+            this.playSound('explosion');
+        }
+
+        resetGame() {
+            this.overlay.style.display = 'none';
+            this.initGame();
+        }
+
+        startBackgroundMusic() {
+            try {
+                this.sounds.background.play();
+            } catch(e) {
+                console.error('Ошибка запуска фоновой музыки:', e);
+            }
+        }
+
+        stopBackgroundMusic() {
+            this.sounds.background.pause();
+            this.sounds.background.currentTime = 0;
+        }
+    }
+
+    // Создание игры при полной загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        const game = new SpaceDefenderGame();
+        
+        // Добавление автоматической стрельбы
+        setInterval(() => {
+            if (!game.gameOver) {
+                game.shootBullet();
+            }
+        }, 300);
+
+        // Начало фоновой музыки после взаимодействия пользователя
+        document.body.addEventListener('click', () => {
+            game.startBackgroundMusic();
+        }, { once: true });
+    });
     </script>
+
+    <!-- Мета-теги для SEO и социальных сетей -->
+    <meta property="og:title" content="Космический Защитник">
+    <meta property="og:description" content="Захватывающая космическая аркадная игра">
+    <meta property="og:image" content="preview.png">
+    <meta name="twitter:card" content="summary_large_image">
 </body>
 </html>
