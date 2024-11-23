@@ -2,148 +2,412 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafeNet VPN</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Космический Защитник</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { 
+            margin: 0; 
+            padding: 0; 
+            user-select: none; 
+            touch-action: none; 
         }
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        body { 
+            background: #1a1a2e; 
+            overflow: hidden; 
+            font-family: Arial, sans-serif;
+            touch-action: none;
+        }
+        canvas { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            touch-action: none;
+        }
+        #gameOverScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             color: white;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 90%;
-            margin: 0 auto;
-            padding: 20px;
             text-align: center;
         }
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0;
-            animation: slideDown 1s ease;
-        }
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-        }
-        nav a {
+        #restartButton {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 22px;
+            background: #4CAF50;
             color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            transition: color 0.3s;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            touch-action: manipulation;
         }
-        nav a:hover {
-            color: #ffd700;
+        #subscribeButton {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            z-index: 1000;
         }
-        .hero {
+        #loadingScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #000;
             display: flex;
             flex-direction: column;
+            justify-content: center;
             align-items: center;
-            margin-top: 50px;
-            animation: fadeIn 1.5s ease;
+            z-index: 9999;
         }
-        .hero h1 {
-            font-size: 36px;
-            margin-bottom: 20px;
+        #pixelLoadingBar {
+            width: 200px;
+            height: 15px;
+            background-color: #222;
+            border: 2px solid #fff;
+            position: relative;
+            overflow: hidden;
         }
-        .hero p {
-            max-width: 600px;
-            margin-bottom: 30px;
+        #pixelLoadingProgress {
+            width: 0;
+            height: 100%;
+            background-color: #4CAF50;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: width 0.5s ease;
         }
-        .btn {
-            display: inline-block;
-            background-color: #ffd700;
-            color: #667eea;
-            padding: 12px 30px;
-            text-decoration: none;
-            border-radius: 50px;
-            transition: transform 0.3s;
-        }
-        .btn:hover {
-            transform: scale(1.1);
-        }
-        .features {
-            display: flex;
-            justify-content: space-around;
-            margin-top: 50px;
-        }
-        .feature {
-            background-color: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 15px;
-            width: 30%;
-            transition: transform 0.4s;
-        }
-        .feature:hover {
-            transform: translateY(-10px);
-        }
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-50px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
-        @media (max-width: 768px) {
-            .features {
-                flex-direction: column;
-            }
-            .feature {
-                width: 100%;
-                margin-bottom: 20px;
-            }
+        #pixelLoadingText {
+            color: #4CAF50;
+            font-family: monospace;
+            margin-bottom: 15px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">SafeNet VPN</div>
-            <nav>
-                <a href="#">Главная</a>
-                <a href="#">Сервера</a>
-                <a href="#">Цены</a>
-            </nav>
-        </header>
-
-        <section class="hero">
-            <h1>Безопасный и Быстрый VPN</h1>
-            <p>Защитите свою онлайн-конфиденциальность и получите неограниченный доступ к интернету с SafeNet VPN</p>
-            <a href="#" class="btn">Скачать Сейчас</a>
-        </section>
-
-        <section class="features">
-            <div class="feature">
-                <h3>Анонимность</h3>
-                <p>Скрываем ваш реальный IP-адрес</p>
-            </div>
-            <div class="feature">
-                <h3>Безопасность</h3>
-                <p>Шифрование трафика по военным стандартам</p>
-            </div>
-            <div class="feature">
-                <h3>Скорость</h3>
-                <p>Быстрое подключение без ограничений</p>
-            </div>
-        </section>
+    <div id="loadingScreen">
+        <div id="pixelLoadingText">Загрузка...</div>
+        <div id="pixelLoadingBar">
+            <div id="pixelLoadingProgress"></div>
+        </div>
     </div>
+
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="gameOverScreen">
+        <h1>Игра окончена!</h1>
+        <p id="finalScore">Ваш счет: 0</p>
+        <button id="restartButton">Начать заново</button>
+    </div>
+    <button id="subscribeButton" onclick="window.open('https://t.me/fuitec', '_blank')">
+        Подписаться
+    </button>
+
+    <script>
+        class SpaceDefender {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.gameOverScreen = document.getElementById('gameOverScreen');
+                this.finalScoreElement = document.getElementById('finalScore');
+                this.restartButton = document.getElementById('restartButton');
+                this.subscribeButton = document.getElementById('subscribeButton');
+                this.loadingScreen = document.getElementById('loadingScreen');
+                this.pixelLoadingProgress = document.getElementById('pixelLoadingProgress');
+                
+                // Звуки
+                this.shootSound = new Audio('https://soundbible.com/grab.php?id=2067&type=mp3');
+                this.explosionSound = new Audio('https://soundbible.com/grab.php?id=1802&type=mp3');
+                
+                // Настройка громкости звуков
+                this.shootSound.volume = 0.2;
+                this.explosionSound.volume = 0.3;
+                
+                this.loadGame();
+            }
+
+            // Методы воспроизведения звуков
+            playShootSound() {
+                const sound = this.shootSound.cloneNode();
+                sound.play().catch(e => console.log("Ошибка воспроизведения звука выстрела"));
+            }
+
+            playExplosionSound() {
+                const sound = this.explosionSound.cloneNode();
+                sound.play().catch(e => console.log("Ошибка воспроизведения звука взрыва"));
+            }
+
+            loadGame() {
+                let progress = 0;
+                const loadingInterval = setInterval(() => {
+                    progress += 10;
+                    this.pixelLoadingProgress.style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(loadingInterval);
+                        setTimeout(() => {
+                            this.loadingScreen.style.display = 'none';
+                            this.setupCanvas();
+                            this.initGame();
+                            this.setupEventListeners();
+                        }, 500);
+                    }
+                }, 100);
+            }
+
+            setupCanvas() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                window.addEventListener('resize', () => {
+                    this.canvas.width = window.innerWidth;
+                    this.canvas.height = window.innerHeight;
+                });
+            }
+
+            setupEventListeners() {
+                this.restartButton.addEventListener('click', () => this.restartGame());
+
+                this.canvas.addEventListener('touchmove', (e) => {
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    this.player.x = Math.max(0, Math.min(
+                        touch.clientX - this.player.width / 2, 
+                        this.canvas.width - this.player.width
+                    ));
+                }, { passive: false });
+            }
+
+            restartGame() {
+                this.gameOverScreen.style.display = 'none';
+                this.initGame();
+            }
+
+            initGame() {
+                const scaleFactor = this.canvas.width / 500;
+                
+                this.player = {
+                    x: this.canvas.width / 2,
+                    y: this.canvas.height - 100 * scaleFactor,
+                    width: 50 * scaleFactor,
+                    height: 50 * scaleFactor,
+                    speed: 5 * scaleFactor,
+                    autoShoot: true
+                };
+
+                this.enemies = [];
+                this.bullets = [];
+                this.explosions = [];
+                this.score = 0;
+                this.gameOver = false;
+                this.lastShootTime = 0;
+                this.lastEnemySpawnTime = 0;
+
+                                this.startGameLoop();
+            }
+
+            startGameLoop() {
+                const gameLoop = () => {
+                    if (!this.gameOver) {
+                        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                        
+                        this.updateGameObjects();
+                        this.spawnEnemies();
+                        this.drawGame();
+
+                        requestAnimationFrame(gameLoop);
+                    } else {
+                        this.endGame();
+                    }
+                };
+                requestAnimationFrame(gameLoop);
+            }
+
+            updateGameObjects() {
+                if (this.player.autoShoot) {
+                    this.shootBullet();
+                }
+
+                this.enemies.forEach((enemy, index) => {
+                    enemy.y += enemy.speed;
+                    
+                    if (this.checkCollision(this.player, enemy)) {
+                        this.gameOver = true;
+                    }
+
+                    if (enemy.y > this.canvas.height) {
+                        this.enemies.splice(index, 1);
+                    }
+                });
+
+                this.bullets.forEach((bullet, bIndex) => {
+                    bullet.y -= bullet.speed;
+                    
+                    this.enemies.forEach((enemy, eIndex) => {
+                        if (this.checkCollision(bullet, enemy)) {
+                            this.createExplosion(enemy.x + enemy.width/2, enemy.y + enemy.height/2);
+                            
+                            this.bullets.splice(bIndex, 1);
+                            this.enemies.splice(eIndex, 1);
+                            this.score++;
+
+                            // Воспроизведение звука взрыва
+                            this.playExplosionSound();
+
+                            if (this.score % 150 === 0) {
+                                this.showSubscribeButton();
+                            }
+                        }
+                    });
+
+                    if (bullet.y < 0) this.bullets.splice(bIndex, 1);
+                });
+
+                this.explosions.forEach((explosion, index) => {
+                    explosion.radius += 2;
+                    explosion.opacity -= 0.05;
+                    
+                    if (explosion.opacity <= 0) {
+                        this.explosions.splice(index, 1);
+                    }
+                });
+            }
+
+            shootBullet() {
+                const currentTime = Date.now();
+                if (currentTime - this.lastShootTime > 100) {
+                    this.bullets.push({
+                        x: this.player.x + this.player.width / 2,
+                        y: this.player.y,
+                        width: 5 * (this.canvas.width / 500),
+                        height: 15 * (this.canvas.width / 500),
+                        speed: 10 * (this.canvas.width / 500)
+                    });
+                    this.lastShootTime = currentTime;
+                    
+                    // Воспроизведение звука выстрела
+                    this.playShootSound();
+                }
+            }
+
+            spawnEnemies() {
+                const currentTime = Date.now();
+                const scaleFactor = this.canvas.width / 500;
+
+                if (currentTime - this.lastEnemySpawnTime > 500) {
+                    const enemyWidth = 40 * scaleFactor;
+                    const enemyHeight = 40 * scaleFactor;
+                    const enemyX = Math.random() * (this.canvas.width - enemyWidth);
+
+                    this.enemies.push({
+                        x: enemyX,
+                        y: -enemyHeight,
+                        width: enemyWidth,
+                        height: enemyHeight,
+                        speed: 3 * scaleFactor
+                    });
+
+                    this.lastEnemySpawnTime = currentTime;
+                }
+            }
+
+            drawGame() {
+                // Рисование игрока
+                this.ctx.fillStyle = 'blue';
+                this.ctx.fillRect(
+                    this.player.x, 
+                    this.player.y, 
+                    this.player.width, 
+                    this.player.height
+                );
+
+                // Рисование врагов
+                this.ctx.fillStyle = 'red';
+                this.enemies.forEach(enemy => {
+                    this.ctx.fillRect(
+                        enemy.x, 
+                        enemy.y, 
+                        enemy.width, 
+                        enemy.height
+                    );
+                });
+
+                // Рисование пуль
+                this.ctx.fillStyle = 'white';
+                this.bullets.forEach(bullet => {
+                    this.ctx.fillRect(
+                        bullet.x, 
+                        bullet.y, 
+                        bullet.width, 
+                        bullet.height
+                    );
+                });
+
+                // Рисование взрывов
+                this.explosions.forEach(explosion => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(
+                        explosion.x, 
+                        explosion.y, 
+                        explosion.radius, 
+                        0, 
+                        Math.PI * 2
+                    );
+                    this.ctx.fillStyle = `rgba(255, 165, 0, ${explosion.opacity})`;
+                    this.ctx.fill();
+                });
+
+                // Рисование счета
+                this.ctx.fillStyle = 'white';
+                this.ctx.font = `${20 * (this.canvas.width / 500)}px Arial`;
+                this.ctx.fillText(`Счет: ${this.score}`, 10, 30);
+            }
+
+            createExplosion(x, y) {
+                this.explosions.push({
+                    x: x,
+                    y: y,
+                    radius: 5,
+                    opacity: 1
+                });
+            }
+
+            checkCollision(rect1, rect2) {
+                return rect1.x < rect2.x + rect2.width &&
+                       rect1.x + rect1.width > rect2.x &&
+                       rect1.y < rect2.y + rect2.height &&
+                       rect1.y + rect1.height > rect2.y;
+            }
+
+            showSubscribeButton() {
+                this.subscribeButton.style.display = 'block';
+            }
+
+            endGame() {
+                this.finalScoreElement.textContent = `Ваш счет: ${this.score}`;
+                this.gameOverScreen.style.display = 'flex';
+                this.subscribeButton.style.display = 'block';
+            }
+        }
+
+        // Инициализация игры
+        new SpaceDefender();
+    </script>
 </body>
 </html>
